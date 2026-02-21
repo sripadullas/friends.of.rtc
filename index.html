@@ -3,221 +3,258 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Friends of RTC</title>
+<title>Hyderabad RTC Control Room</title>
 
-<!-- Leaflet -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <style>
 
-/* ---------- ROOT COLORS ---------- */
-:root {
-    --primary-blue:#0b3d91;
-    --govt-green:#0f6b3e;
-    --light-bg:#f4f6f9;
-    --dark-bg:#0e1a25;
+/* ================= ROOT COLORS ================= */
+:root{
+    --blue:#0B3D91;
+    --green:#138808;
+    --light:#f4f6f9;
+    --dark:#0e1a25;
     --card-light:#ffffff;
     --card-dark:#1c2b38;
 }
 
-/* ---------- BODY ---------- */
-body {
+/* ================= GLOBAL ================= */
+body{
     margin:0;
     font-family:'Segoe UI',sans-serif;
-    background:var(--light-bg);
+    background:var(--light);
     transition:0.3s;
 }
 
-/* ---------- HEADER ---------- */
-header {
+/* ================= HEADER ================= */
+header{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    padding:15px 25px;
-    background:linear-gradient(90deg,var(--primary-blue),var(--govt-green));
+    padding:12px 25px;
+    background:linear-gradient(90deg,var(--blue),var(--green));
     color:white;
 }
 
-header h1 {
-    margin:0;
-    font-size:22px;
+.logo-section{
+    display:flex;
+    align-items:center;
+    gap:12px;
 }
 
-.controls button {
-    margin-left:10px;
+.logo-section img{
+    height:50px;
+}
+
+.controls button{
+    margin-left:8px;
     padding:6px 12px;
     border:none;
     border-radius:6px;
     cursor:pointer;
 }
 
-/* ---------- DASHBOARD GRID ---------- */
-.dashboard {
+/* ================= GRID LAYOUT ================= */
+.dashboard{
     display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap:20px;
-    padding:20px;
+    grid-template-columns: 250px 1fr 350px;
+    height:calc(100vh - 80px);
 }
 
-/* ---------- CARD ---------- */
-.card {
-    background:var(--card-light);
-    padding:20px;
-    border-radius:12px;
-    box-shadow:0 4px 15px rgba(0,0,0,0.15);
-    transition:0.3s;
-}
-
-/* ---------- MAP ---------- */
-#map {
-    height:400px;
-    border-radius:12px;
-}
-
-/* ---------- SEARCH ---------- */
-#search {
-    width:100%;
-    padding:8px;
-    margin-bottom:15px;
-    border-radius:6px;
-    border:1px solid #ccc;
-}
-
-/* ---------- FOOTER ---------- */
-footer {
-    position:relative;
+/* LEFT MENU */
+.sidebar{
     background:#111;
     color:white;
     padding:20px;
-    text-align:center;
 }
 
-.india-logo {
-    position:absolute;
-    left:20px;
-    bottom:10px;
-    height:40px;
+.sidebar button{
+    width:100%;
+    margin-bottom:10px;
+    padding:10px;
+    background:#222;
+    border:none;
+    color:white;
+    cursor:pointer;
+    border-radius:6px;
 }
 
-/* ---------- DARK MODE ---------- */
-.dark {
-    background:var(--dark-bg);
+/* CENTER MAP */
+#map{
+    height:100%;
+}
+
+/* RIGHT PANEL */
+.panel{
+    padding:15px;
+    overflow-y:auto;
+    background:var(--card-light);
+}
+
+/* CARD */
+.card{
+    background:var(--card-light);
+    padding:12px;
+    border-radius:10px;
+    margin-bottom:10px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* SEARCH */
+#search{
+    width:100%;
+    padding:8px;
+    margin-bottom:15px;
+}
+
+/* DARK MODE */
+.dark{
+    background:var(--dark);
     color:white;
 }
 
-.dark .card {
+.dark .panel{
     background:var(--card-dark);
 }
 
-.dark #search {
-    background:#333;
-    color:white;
-    border:none;
+.dark .card{
+    background:#243645;
 }
 
-/* ---------- MOBILE ---------- */
-@media(max-width:768px){
+/* FOOTER */
+footer{
+    position:relative;
+    background:#000;
+    color:white;
+    padding:15px;
+    text-align:center;
+}
+
+.india-logo{
+    position:absolute;
+    left:15px;
+    bottom:10px;
+    height:35px;
+}
+
+/* MOBILE */
+@media(max-width:900px){
     .dashboard{
         grid-template-columns:1fr;
     }
+    .sidebar{
+        display:flex;
+        overflow-x:auto;
+    }
     #map{
-        height:300px;
+        height:400px;
     }
 }
 
 </style>
 </head>
+
 <body>
 
 <header>
-    <h1 id="title">Friends of RTC</h1>
+    <div class="logo-section">
+        <img src="assets/tgsrtc-logo.png">
+        <h2 id="title">Hyderabad RTC Control Room</h2>
+    </div>
+
     <div class="controls">
-        <button onclick="toggleLanguage()">🌐 English/Telugu</button>
-        <button onclick="toggleMode()">🌙 Light/Dark</button>
+        <button onclick="toggleLanguage()">🌐 EN/TE</button>
+        <button onclick="toggleMode()">🌙 Mode</button>
     </div>
 </header>
 
 <div class="dashboard">
 
-    <div class="card">
-        <h3 id="mapTitle">Live Vehicle Map</h3>
-        <div id="map"></div>
+    <!-- LEFT MENU -->
+    <div class="sidebar">
+        <button onclick="loadSheet('live')">Live Tracking</button>
+        <button onclick="loadSheet('depot')">Depot Status</button>
+        <button onclick="loadSheet('alerts')">Service Alerts</button>
+        <button onclick="loadSheet('routes')">Route Data</button>
     </div>
 
-    <div class="card">
-        <h3 id="dataTitle">Live Vehicle Data</h3>
+    <!-- MAP -->
+    <div id="map"></div>
+
+    <!-- RIGHT PANEL -->
+    <div class="panel">
         <input type="text" id="search" placeholder="Search Vehicle">
-        <div id="cards"></div>
+        <div id="dataCards"></div>
     </div>
 
 </div>
 
 <footer>
-    <img src="C:\Users\singa\Downloads\Flag_of_India.jpg" class="india-logo">
+    <img src="assets/india-logo.png" class="india-logo">
     © 2026 friends.of.rtc
 </footer>
 
 <script>
 
-/* ---------- MAP ---------- */
-var map = L.map('map').setView([17.3850, 78.4867], 7);
+/* ================= MAP ================= */
+var map=L.map('map').setView([17.3850,78.4867],8);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution:'© OpenStreetMap contributors'
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© OpenStreetMap'
 }).addTo(map);
 
-let markers = [];
+let markers=[];
 
-/* ---------- GOOGLE SHEET CSV ---------- */
-const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQFABE9Tm8vvxKX4E93wHg1U8Nq7NmbiWdkfc1mVC0zz69eJFKuQn-FE0PtHDzN4TtbGjhUPFYWbhF0/pub?output=csv";
+/* ================= SHEET LINKS ================= */
+const sheets={
+    live:"YOUR_LIVE_SHEET_CSV",
+    depot:"YOUR_DEPOT_SHEET_CSV",
+    alerts:"YOUR_ALERT_SHEET_CSV",
+    routes:"YOUR_ROUTE_SHEET_CSV"
+};
 
-/* ---------- LOAD DATA ---------- */
-function loadData(){
-    fetch(sheetURL)
+/* ================= LOAD SHEET ================= */
+function loadSheet(type){
+
+    fetch(sheets[type])
     .then(res=>res.text())
     .then(data=>{
-        const rows = data.split("\n").slice(1);
-        const container = document.getElementById("cards");
+        const rows=data.split("\n").slice(1);
+        const container=document.getElementById("dataCards");
         container.innerHTML="";
         markers.forEach(m=>map.removeLayer(m));
         markers=[];
 
         rows.forEach(row=>{
             const cols=row.split(",");
-            const vehicle=cols[0];
+            const name=cols[0];
             const lat=parseFloat(cols[1]);
             const lon=parseFloat(cols[2]);
 
-            if(vehicle && !isNaN(lat) && !isNaN(lon)){
+            const card=document.createElement("div");
+            card.className="card";
+            card.innerHTML=`<b>${name}</b>`;
+            container.appendChild(card);
 
-                /* CARD */
-                const card=document.createElement("div");
-                card.style.marginBottom="10px";
-                card.innerHTML=`<b>${vehicle}</b><br>Lat: ${lat}<br>Lon: ${lon}`;
-                container.appendChild(card);
-
-                /* MAP MARKER */
-                const marker=L.marker([lat,lon])
-                    .addTo(map)
-                    .bindPopup("Vehicle: "+vehicle);
+            if(!isNaN(lat) && !isNaN(lon)){
+                const marker=L.marker([lat,lon]).addTo(map)
+                .bindPopup(name);
                 markers.push(marker);
             }
         });
     });
 }
 
-loadData();
-
 /* AUTO REFRESH */
-setInterval(loadData,30000);
+setInterval(()=>loadSheet('live'),30000);
 
 /* SEARCH */
 document.getElementById("search").addEventListener("keyup",function(){
-    const value=this.value.toLowerCase();
-    const cards=document.querySelectorAll("#cards div");
-    cards.forEach(card=>{
-        card.style.display=card.innerText.toLowerCase().includes(value)?"":"none";
+    const val=this.value.toLowerCase();
+    document.querySelectorAll(".card").forEach(card=>{
+        card.style.display=card.innerText.toLowerCase().includes(val)?"":"none";
     });
 });
 
@@ -226,25 +263,19 @@ function toggleMode(){
     document.body.classList.toggle("dark");
 }
 
-/* LANGUAGE TOGGLE */
+/* LANGUAGE */
 let telugu=false;
 function toggleLanguage(){
     telugu=!telugu;
-
-    if(telugu){
-        document.getElementById("title").innerText="ఆర్.టి.సి మిత్రులు";
-        document.getElementById("mapTitle").innerText="ప్రత్యక్ష వాహన మ్యాప్";
-        document.getElementById("dataTitle").innerText="ప్రత్యక్ష వాహన సమాచారం";
-    } else {
-        document.getElementById("title").innerText="Friends of RTC";
-        document.getElementById("mapTitle").innerText="Live Vehicle Map";
-        document.getElementById("dataTitle").innerText="Live Vehicle Data";
-    }
+    document.getElementById("title").innerText=
+        telugu?"హైదరాబాద్ RTC నియంత్రణ గది":
+        "Hyderabad RTC Control Room";
 }
+
+/* LOAD DEFAULT */
+loadSheet('live');
 
 </script>
 
 </body>
-
 </html>
-
