@@ -133,7 +133,7 @@ footer {
 <header>
     <h1 id="title">Friends of RTC</h1>
     <div class="controls">
-        <button onclick="toggleLanguage()">🌐 EN/TE</button>
+        <button onclick="toggleLanguage()">🌐 English/Telugu</button>
         <button onclick="toggleMode()">🌙 Light/Dark</button>
     </div>
 </header>
@@ -154,7 +154,7 @@ footer {
 </div>
 
 <footer>
-    <img src="india-logo.png" class="india-logo">
+    <img src="C:\Users\singa\Downloads\Flag_of_India.jpg" class="india-logo">
     © 2026 friends.of.rtc
 </footer>
 
@@ -170,7 +170,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 let markers = [];
 
 /* ---------- GOOGLE SHEET CSV ---------- */
-const sheetURL = "YOUR_GOOGLE_SHEET_CSV_LINK";
+const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQFABE9Tm8vvxKX4E93wHg1U8Nq7NmbiWdkfc1mVC0zz69eJFKuQn-FE0PtHDzN4TtbGjhUPFYWbhF0/pub?gid=43672214&single=true&output=csv";
 
 /* ---------- LOAD DATA ---------- */
 function loadData(){
@@ -232,7 +232,7 @@ function toggleLanguage(){
     telugu=!telugu;
 
     if(telugu){
-        document.getElementById("title").innerText="RTC మిత్రులు";
+        document.getElementById("title").innerText="ఆర్.టి.సి మిత్రులు";
         document.getElementById("mapTitle").innerText="ప్రత్యక్ష వాహన మ్యాప్";
         document.getElementById("dataTitle").innerText="ప్రత్యక్ష వాహన సమాచారం";
     } else {
@@ -245,4 +245,5 @@ function toggleLanguage(){
 </script>
 
 </body>
+
 </html>
