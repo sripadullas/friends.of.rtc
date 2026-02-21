@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Friends of RTC</title>
+
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<style>
+
+/* ---------- ROOT COLORS ---------- */
+:root {
+    --primary-blue:#0b3d91;
+    --govt-green:#0f6b3e;
+    --light-bg:#f4f6f9;
+    --dark-bg:#0e1a25;
+    --card-light:#ffffff;
+    --card-dark:#1c2b38;
+}
+
+/* ---------- BODY ---------- */
+body {
+    margin:0;
+    font-family:'Segoe UI',sans-serif;
+    background:var(--light-bg);
+    transition:0.3s;
+}
+
+/* ---------- HEADER ---------- */
+header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px 25px;
+    background:linear-gradient(90deg,var(--primary-blue),var(--govt-green));
+    color:white;
+}
+
+header h1 {
+    margin:0;
+    font-size:22px;
+}
+
+.controls button {
+    margin-left:10px;
+    padding:6px 12px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+/* ---------- DASHBOARD GRID ---------- */
+.dashboard {
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:20px;
+    padding:20px;
+}
+
+/* ---------- CARD ---------- */
+.card {
+    background:var(--card-light);
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.15);
+    transition:0.3s;
+}
+
+/* ---------- MAP ---------- */
+#map {
+    height:400px;
+    border-radius:12px;
+}
+
+/* ---------- SEARCH ---------- */
+#search {
+    width:100%;
+    padding:8px;
+    margin-bottom:15px;
+    border-radius:6px;
+    border:1px solid #ccc;
+}
+
+/* ---------- FOOTER ---------- */
+footer {
+    position:relative;
+    background:#111;
+    color:white;
+    padding:20px;
+    text-align:center;
+}
+
+.india-logo {
+    position:absolute;
+    left:20px;
+    bottom:10px;
+    height:40px;
+}
+
+/* ---------- DARK MODE ---------- */
+.dark {
+    background:var(--dark-bg);
+    color:white;
+}
+
+.dark .card {
+    background:var(--card-dark);
+}
+
+.dark #search {
+    background:#333;
+    color:white;
+    border:none;
+}
+
+/* ---------- MOBILE ---------- */
+@media(max-width:768px){
+    .dashboard{
+        grid-template-columns:1fr;
+    }
+    #map{
+        height:300px;
+    }
+}
+
+</style>
+</head>
+<body>
+
+<header>
+    <h1 id="title">Friends of RTC</h1>
+    <div class="controls">
+        <button onclick="toggleLanguage()">🌐 EN/TE</button>
+        <button onclick="toggleMode()">🌙 Light/Dark</button>
+    </div>
+</header>
+
+<div class="dashboard">
+
+    <div class="card">
+        <h3 id="mapTitle">Live Vehicle Map</h3>
+        <div id="map"></div>
+    </div>
+
+    <div class="card">
+        <h3 id="dataTitle">Live Vehicle Data</h3>
+        <input type="text" id="search" placeholder="Search Vehicle">
+        <div id="cards"></div>
+    </div>
+
+</div>
+
+<footer>
+    <img src="india-logo.png" class="india-logo">
+    © 2026 friends.of.rtc
+</footer>
+
+<script>
+
+/* ---------- MAP ---------- */
+var map = L.map('map').setView([17.3850, 78.4867], 7);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution:'© OpenStreetMap contributors'
+}).addTo(map);
+
+let markers = [];
+
+/* ---------- GOOGLE SHEET CSV ---------- */
+const sheetURL = "YOUR_GOOGLE_SHEET_CSV_LINK";
+
+/* ---------- LOAD DATA ---------- */
+function loadData(){
+    fetch(sheetURL)
+    .then(res=>res.text())
+    .then(data=>{
+        const rows = data.split("\n").slice(1);
+        const container = document.getElementById("cards");
+        container.innerHTML="";
+        markers.forEach(m=>map.removeLayer(m));
+        markers=[];
+
+        rows.forEach(row=>{
+            const cols=row.split(",");
+            const vehicle=cols[0];
+            const lat=parseFloat(cols[1]);
+            const lon=parseFloat(cols[2]);
+
+            if(vehicle && !isNaN(lat) && !isNaN(lon)){
+
+                /* CARD */
+                const card=document.createElement("div");
+                card.style.marginBottom="10px";
+                card.innerHTML=`<b>${vehicle}</b><br>Lat: ${lat}<br>Lon: ${lon}`;
+                container.appendChild(card);
+
+                /* MAP MARKER */
+                const marker=L.marker([lat,lon])
+                    .addTo(map)
+                    .bindPopup("Vehicle: "+vehicle);
+                markers.push(marker);
+            }
+        });
+    });
+}
+
+loadData();
+
+/* AUTO REFRESH */
+setInterval(loadData,30000);
+
+/* SEARCH */
+document.getElementById("search").addEventListener("keyup",function(){
+    const value=this.value.toLowerCase();
+    const cards=document.querySelectorAll("#cards div");
+    cards.forEach(card=>{
+        card.style.display=card.innerText.toLowerCase().includes(value)?"":"none";
+    });
+});
+
+/* DARK MODE */
+function toggleMode(){
+    document.body.classList.toggle("dark");
+}
+
+/* LANGUAGE TOGGLE */
+let telugu=false;
+function toggleLanguage(){
+    telugu=!telugu;
+
+    if(telugu){
+        document.getElementById("title").innerText="RTC మిత్రులు";
+        document.getElementById("mapTitle").innerText="ప్రత్యక్ష వాహన మ్యాప్";
+        document.getElementById("dataTitle").innerText="ప్రత్యక్ష వాహన సమాచారం";
+    } else {
+        document.getElementById("title").innerText="Friends of RTC";
+        document.getElementById("mapTitle").innerText="Live Vehicle Map";
+        document.getElementById("dataTitle").innerText="Live Vehicle Data";
+    }
+}
+
+</script>
+
+</body>
+</html>
